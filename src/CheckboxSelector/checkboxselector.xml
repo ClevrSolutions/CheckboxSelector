@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="CheckboxSelector.widget.checkboxselector" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>Checkbox Set Selector</name>
+    <description>Lets you use a list of objects with checkboxes as reference set selector.</description>
+    <icon>
+    iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuklEQVR42qWScQfF
+    IBTF27dNzIxMxtREkpjE7Nu+98q7U+96T0/nj3Vv55wfsYF0akgfpdTj3+KrM1QA
+    KWVzed93DNi2rRmgtcaAdV1/lowxBDJpRgAhxNeytTafkEk7AizLkk3nHIEZdlCZ
+    QQDOeTa99/lMO8ywg9I9AszznM3jONATwAOlDAJM03QHQgj3XN6XPgKM41iFYozk
+    8670EIAx1vgXEHKeJwZQSpsB13VhQHP7rQrQo27AE+MRcBFOD9LhAAAAAElFTkSu
+    QmCC
+    </icon>
+    <properties>
+        <property key="nameAttr" type="entity" isPath="yes" pathType="referenceSet">
+            <caption>Association</caption>
+            <category>Data source</category>
+            <description>The reference entity.</description>  
+        </property>
+
+        <property key="sortAttr" type="attribute" entityProperty="nameAttr">
+            <caption>Sort attribute</caption>
+            <category>Data source</category>
+            <description>The attribute to sort on.</description>
+            <attributeTypes>
+                <attributeType name="String"/>
+                <attributeType name="Integer"/>
+                <attributeType name="Decimal"/>
+                <attributeType name="Enum"/>
+            </attributeTypes>
+        </property>
+        <property key="sortOrder" type="enumeration" defaultValue="Asc">
+            <caption>Sort order</caption>
+            <category>Data source</category>
+            <description>The sort order.</description>
+            <enumerationValues>
+                <enumerationValue key="Asc">Ascending</enumerationValue>
+                <enumerationValue key="Desc">Descending</enumerationValue>
+            </enumerationValues>  
+        </property>
+        <property key="useHeaders" type="boolean" defaultValue="true">
+            <caption>Use headers</caption>
+            <category>Appearance</category>
+            <description>Use headers.</description>
+        </property>
+        <property key="readonly" type="boolean" defaultValue="false">
+            <caption>Read-only</caption>
+            <category>Appearance</category>
+            <description>Boolean to set the checkbox selector to read-only, work-around for nested dataviews not processing the read-only flag properly.</description>
+        </property>
+        
+        <property key="boxWidth" type="integer" defaultValue="25">
+        	<!--
+        	 ! DRE: Although breaking the API why not make this a string so we can use CSS3 calc()? Also see http://www.w3.org/TR/css3-values/#calc
+        	 !-->
+            <caption>Checkbox column width value</caption>
+            <category>Appearance</category>
+            <description>Width of the first column, containing the checkboxes, in percentage. Match this with the width of your display attributes.
+            Important: Sizes may differ between Firefox and Internet Explorer, make sure to check this.</description>
+        </property>
+        
+        <property key="boxWidthUnit" type="enumeration" defaultValue="u0025">
+            <caption>Checkbox column width unit</caption>
+            <category>Appearance</category>
+            <description>The unit begin used for width, for a definition of the different units see section 4.3 for the percentage unit and section 5 for relative and absolute units in CSS3. http://www.w3.org/TR/css3-values/</description>
+			<enumerationValues>
+				<!--
+				 ! None and percentage both contain a chopped up unicode literal, in javascript you can do something like
+				 ! this to escape characters in a string \uXXXX, the X standing for a hex decimal. Using the "\" in an
+				 ! attribute does cause the modeler to throw an error when loading the widget.
+				 !
+				 ! DRE: What do I do with the 'None' value it does make sense if we are going to do some more CSS magic in the modeler some day?
+				 !-->
+				<enumerationValue key="u0000">None</enumerationValue>
+				<enumerationValue key="u0025">percentage (%)</enumerationValue>
+				<enumerationValue key="em" >Font size (em)</enumerationValue>
+				<enumerationValue key="px" >Pixel (px)</enumerationValue>
+				
+				<!--
+				 ! Unused but valid unit, thse are all from the CSS3 spec. 
+				 !
+				<enumerationValue key="ex" >Height of X (ex)</enumerationValue>
+				<enumerationValue key="ch" >Width of "0x00" glyph (ch)</enumerationValue>
+				<enumerationValue key="rem">Font size of root (rem)</enumerationValue>
+				<enumerationValue key="vw" >1% of containing block width (vw)</enumerationValue>
+				<enumerationValue key="vh" >1% of containing block height (vh)</enumerationValue>
+				<enumerationValue key="vmin">The smallest of vw or vh (vmin)</enumerationValue>
+				<enumerationValue key="cm" >Centimeter (cm)</enumerationValue>
+				<enumerationValue key="mm" >Milimeter (mm)</enumerationValue>
+				<enumerationValue key="in" >Inch (in)</enumerationValue>
+				<enumerationValue key="pt" >Points (pt)</enumerationValue>
+				<enumerationValue key="pc" >Picas (pc)</enumerationValue>		
+				 !
+				 !-->
+			</enumerationValues>
+        </property>
+        
+        <property key="splits" type="object" isList="true" required="false">
+            <caption>Display attributes</caption>
+            <category>Appearance</category>
+            <description>The object order equals the display order.</description>
+            <properties>
+                <property key="headers" type="string">
+                    <caption>Header text</caption>
+                    <category>Data source</category>
+                    <description>The header for the column.</description>
+                </property>
+                <property key="displayAttrs" type="attribute" isPath="optional" pathType="reference" entityProperty="../nameAttr">
+                    <caption>Attribute</caption>
+                    <category>Data source</category>
+                    <description>The attribute to display.</description>
+                    <attributeTypes>
+                        <attributeType name="String"/>
+                        <attributeType name="Integer"/>
+                        <attributeType name="Decimal"/>
+                        <attributeType name="Enum"/>
+                    </attributeTypes>
+                </property>
+                <property key="displayWidth" type="integer" defaultValue="45">
+                    <caption>Width %</caption>
+                    <category>Appearance</category>
+                    <description></description>
+                </property>
+                <property key="currency" type="enumeration" defaultValue="None">
+                    <caption>Currency type</caption>
+                    <category>Currency only</category>
+                    <description>The currency type to show.</description>
+                    <enumerationValues>
+                        <enumerationValue key="None">None</enumerationValue>
+                        <enumerationValue key="Euro">Euro</enumerationValue>
+                        <enumerationValue key="Dollar">Dollar</enumerationValue>
+                        <enumerationValue key="Pound">Pound</enumerationValue>
+                        <enumerationValue key="Yen">Yen</enumerationValue>
+                    </enumerationValues>    
+                </property>
+                <property key="useSeparators" type="boolean" defaultValue="false">
+                    <caption>Group separators</caption>
+                    <category>Currency only</category>
+                    <description>Use group separators.</description> 
+                </property>
+            </properties>
+        </property>
+        <property key="constraint" type="entityConstraint" entityProperty="nameAttr" required="false">
+            <caption>XPath Constraint</caption>
+            <category>Data source</category>
+            <description>The XPath constraint on the objects.
+            Important: The constraint might hide objects that are already in the ReferenceSet.</description> 
+        </property>
+        <property key="limit" type="integer" defaultValue="0">
+            <caption>Limit</caption>
+            <category>Data source</category>
+            <description>A limit for the amount of objects shown.</description> 
+        </property>
+        <property key="onchangemf" type="microflow" required="false">
+            <caption>On change</caption>
+            <category>Behavior</category>
+            <description>Microflow to trigger on change.</description>
+            <returnType type="Void"/>
+        </property>
+        <property key="listenchannel" type="string" required="false">
+            <caption>Listen source</caption>
+            <category>Behavior</category>
+            <description>This should match the listen channel set up in the Form Loader that should receive the object that is clicked.</description>
+        </property>
+        <property key="beginEmpty" type="boolean" defaultValue="false">
+            <caption>Begin empty</caption>
+            <category>Behavior</category>
+            <description>If set to true this option let's the listening Form Loader start off empty. Otherwise it will be filled with the first object in the retrieved list.</description>
+        </property>
+        <property key="hasSelectAll" type="boolean" defaultValue="true">
+            <caption>Add 'Select All' checkbox</caption>
+            <category>Behavior</category>
+            <description>If true, a checkbox will be added in the header row to check or uncheck all (default true)</description>
+        </property>
+    </properties>
+</widget>
