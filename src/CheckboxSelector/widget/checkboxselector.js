@@ -11,8 +11,9 @@ define([
 	'dojo/dom-attr',
 	'dojo/dom-style',
 	'dojo/_base/connect',
-	'dojo/_base/array'
-], function (declare, _WidgetBase, domClass, domConstruct, on, query, lang, mouse, domAttr, domStyle, connect, array) {
+	'dojo/_base/array',
+	'mxui/dom'
+], function (declare, _WidgetBase, domClass, domConstruct, on, query, lang, mouse, domAttr, domStyle, connect, array, dom) {
 	return declare('CheckboxSelector.widget.checkboxselector', [_WidgetBase], {
 
 		nameAttr: '',
@@ -122,15 +123,15 @@ define([
 			domConstruct.empty(this.domNode);
 			var selectedObjs = this.context.getReferences(this.assoc);
 
-			var surrDiv = domConstruct.create('div', { 'class': 'mendixDataGrid_tablePane' });
-			var table = domConstruct.create('table', { 'class': 'mendixDataGrid_gridTable table-bordered', 'cellPadding': '0px', 'cellSpacing': '0px' }, surrDiv);
+			var table = dom.create('table', { 'class': 'mendixDataGrid_gridTable table-bordered', 'cellPadding': '0px', 'cellSpacing': '0px' });
+			var surrDiv = dom.create('div', { 'class': 'mendixDataGrid_tablePane' }, table);
 
 			if (this.useHeaders) {
-				var thead = domConstruct.create('thead', { 'class': 'mendixDataGrid_gridHead' });
-				var headTr = domConstruct.create('tr', { 'class': 'mendixDataGrid_tableRow' }, thead);
+				var headTr = dom.create('tr', { 'class': 'mendixDataGrid_tableRow' });
+				var thead = dom.create('thead', { 'class': 'mendixDataGrid_gridHead' }, headTr);
 				var checkall = '';
 				if (this.hasSelectAll) {
-					checkall = domConstruct.create('input', { type: 'checkbox', 'class': 'checkbox_checkall' });
+					checkall = dom.create('input', { type: 'checkbox', 'class': 'checkbox_checkall' });
 					var checkallBool = (selectedObjs.length == objs.length);
 					checkall.checked = checkallBool;
 					if (this.isInactive) {
@@ -138,22 +139,26 @@ define([
 					}
 				}
 
-				var checkboxHeadTh = domConstruct.create('th',
-					{ 'class': 'mendixDataGrid_tableHead mendixDataGrid_tableHeadFirst' });
-				var div = domConstruct.create('div', { 'class': 'mendixDataGrid_headContainer' }, checkboxHeadTh);
-				domConstruct.create('div', { 'class': 'mendixDataGrid_sortIcon' }, div);
-				var lastDiv = domConstruct.create('div', { 'class': 'mendixDataGrid_columnCaption' }, div);
-				lastDiv.append(checkall);
+				var checkboxHeadTh = dom.create('th',
+					{ 'class': 'mendixDataGrid_tableHead mendixDataGrid_tableHeadFirst' },
+					dom.create('div',
+						{ 'class': 'mendixDataGrid_headContainer' },
+						dom.create('div',{ 'class': 'mendixDataGrid_sortIcon' }),
+						dom.create('div',{ 'class': 'mendixDataGrid_columnCaption' }, 
+								checkall
+						)
+					)
+				);
 
-				domStyle.set(checkboxHeadTh, 'width', this.boxWidth + this.boxWidthUnit);
+				this.boxWidth && domStyle.set(checkboxHeadTh, 'width', this.boxWidth + this.boxWidthUnit);
 
 				headTr.appendChild(checkboxHeadTh);
 
 				for (var k = 0; k < this.splits.length; k++) {
-					var headTh = domConstruct.create('th', { 'class': 'mendixDataGrid_tableHead', 'width': this.splits[k].displayWidth + '%' });
-					var firstDiv = domConstruct.create('div', { 'class': 'mendixDataGrid_headContainer' }, headTh);
-					domConstruct.create('div', { 'class': 'mendixDataGrid_sortIcon' }, firstDiv);
-					domConstruct.create('div', { 'class': 'mendixDataGrid_columnCaption', 'innerHTML': this.splits[k].headers }, firstDiv);
+					var headTh = dom.create('th',{ 'class': 'mendixDataGrid_tableHead', 'width': this.splits[k].displayWidth + '%' },
+						dom.create('div', { 'class': 'mendixDataGrid_headContainer' },
+							dom.create('div', { 'class': 'mendixDataGrid_sortIcon' }),
+							dom.create('div', { 'class': 'mendixDataGrid_columnCaption' }, this.splits[k].headers)));
 
 					if (k == this.splits.length - 1)
 						domClass.add(headTh, 'mendixDataGrid_tableHeadLast');
@@ -163,19 +168,19 @@ define([
 				table.appendChild(thead);
 			}
 
-			var tbody = domConstruct.create('tbody', { 'class': 'mendixDataGrid_gridBody' });
+			var tbody = dom.create('tbody', { 'class': 'mendixDataGrid_gridBody' });
 			table.appendChild(tbody);
 
 			this.hoverNode = null;
 			for (var i = 0; i < objs.length; i++) {
-				var bodyTr = domConstruct.create('tr', { 'class': 'mendixDataGrid_tableRow' });
+				var bodyTr = dom.create('tr', { 'class': 'mendixDataGrid_tableRow' });
 				tbody.appendChild(bodyTr);
 
 				var currObj = objs[i];
 				var currGUID = currObj.getGuid();
 				var checkBool = (array.indexOf(selectedObjs, currGUID) != -1);
 
-				var checkbox = domConstruct.create('input', { type: 'checkbox', 'class': 'checkbox_box' });
+				var checkbox = dom.create('input', { type: 'checkbox', 'class': 'checkbox_box' });
 				checkbox.checked = checkBool;
 
 				domAttr.set(checkbox, 'defaultChecked', checkBool);
@@ -183,17 +188,16 @@ define([
 				this.rowsList[currGUID] = checkbox;
 
 				// DRE: Unfortunatly this is not a boolean, if the attribute is there the node will be disabled.
-				// this.isInactive && dojo.attr( checkbox, "disabled", "disabled" ); 
+				this.isInactive && domAttr.set(checkbox, "disabled", "disabled" ); 
 
 				if (i % 2 !== 0)
 					domClass.add(bodyTr, 'mendixDataGrid_tableRowEven');
 				else
 					domClass.add(bodyTr, 'mendixDataGrid_tableRowOdd');
 
-				var checkboxTd = domConstruct.create('td', { 'class': 'mendixDataGrid_tableData' });
-				checkboxTd.appendChild(checkbox);
+				var checkboxTd = dom.create('td', { 'class': 'mendixDataGrid_tableData' }, checkbox);
 
-				domStyle.set(checkboxTd, 'width', this.boxWidth + this.boxWidthUnit);
+				this.boxWidth && domStyle.set(checkboxTd, 'width', this.boxWidth + this.boxWidthUnit);
 
 				bodyTr.appendChild(checkboxTd);
 
@@ -204,9 +208,8 @@ define([
 
 				for (var j = 0; j < this.splits.length; j++) {
 					var splitobj = this.splits[j];
-					var tdDiv = domConstruct.create('div');
-					var bodyTd = domConstruct.create('td', { 'class': 'mendixDataGrid_tableData gridselector_column' + j, 'width': this.splits[j].displayWidth + '%' });
-					bodyTd.appendChild(tdDiv);
+					var tdDiv = dom.create('div');
+					var bodyTd = dom.create('td', { 'class':'mendixDataGrid_tableData gridselector_column'+j, 'width' : this.splits[j].displayWidth+'%'}, tdDiv);
 					bodyTr.appendChild(bodyTd);
 					currObj.fetch(this.splits[j].displayAttrs, lang.hitch(this, function (currObj, tdDiv, value) {
 						if (value) {
@@ -266,7 +269,7 @@ define([
 			domClass.add(this.validationDiv, 'mendixReferenceSetSelector_invalidNode');
 			this.domNode.appendChild(this.validationDiv);
 
-			query('td').on('click', lang.hitch(this, function (e) {
+			query('td', this.domNode).on('click', lang.hitch(this, function (e) {
 				if (!e.stopme) {
 					var obj = mxui.dom.data(e.currentTarget.parentNode, 'obj');
 					if (this.listenchannel !== '') {
@@ -283,7 +286,7 @@ define([
 				}
 			}));
 
-			query('tr').on(mouse.enter, lang.hitch(this, function (e) {
+			query('tr', this.domNode).on(mouse.enter, lang.hitch(this, function (e) {
 				var node = e.currentTarget;
 				if (node != this.hoverNode) {
 					this.hoverNode && domClass.remove(this.hoverNode, 'mendixDataGrid_tableRowHover');
@@ -293,7 +296,7 @@ define([
 			}
 			));
 
-			query('input').on('click', lang.hitch(this, function (e) {
+			query('input', this.domNode).on('click', lang.hitch(this, function (e) {
 				if (!domClass.contains(e.currentTarget, 'checkbox_checkall')) {
 					var obj = mxui.dom.data(e.currentTarget.parentNode.parentNode, 'obj');
 					var checkbox = mxui.dom.data(e.currentTarget.parentNode.parentNode, 'checkbox');
@@ -317,13 +320,26 @@ define([
 				this.context.removeReferences(this.assoc, [guid]);
 			}
 
+
+			if (this.context.hasChanges()) {
+				mx.data.commit({
+					mxobj: this.context,
+					callback: function () {
+						//ok
+					},
+					error: function (e) {
+						logger.error('Could not save object: ' + this.context + 'with error: ' + e && e);
+					}
+				});
+			}
+
 			if (!this.ignoreChange) {
 				if (this.onchangemf) {
 					this.ignoreChange = true;
 					var context = new mendix.lib.MxContext();
 
 					if (this.context) {
-						context.setContext(this.context.getClass(), this.context.getGuid());
+						context.setContext(this.context.getEntity(), this.context.getGuid());
 					}
 
 					mx.ui.action(this.onchangemf, {
